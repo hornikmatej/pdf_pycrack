@@ -1,7 +1,7 @@
 import argparse
 import multiprocessing
 import time
-from core import crack_pdf_password_mp
+from .core import crack_pdf_password_mp
 
 
 def main():
@@ -12,9 +12,9 @@ def main():
     parser.add_argument(
         "--library",
         type=str,
-        choices=["pikepdf", "pypdf"],
+        choices=["pikepdf"],  # Removed "pypdf"
         default="pikepdf",
-        help="PDF library to use (pikepdf or pypdf). Default: pikepdf",
+        help="PDF library to use (pikepdf). Default: pikepdf",  # Updated help text
     )
     parser.add_argument(
         "--cores",
@@ -109,7 +109,3 @@ def main():
     print(
         f"Total cracking duration: {duration_main:.2f} seconds using {library_to_use}."
     )
-
-
-if __name__ == "__main__":
-    main()
