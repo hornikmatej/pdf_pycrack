@@ -1,8 +1,7 @@
 import argparse
 import multiprocessing
-import time
 
-from .core import crack_pdf_password_mp
+from .core import crack_pdf_password
 
 
 def main():
@@ -99,14 +98,12 @@ def main():
         print("Error: Password lengths must be positive and min_len <= max_len.")
         exit(1)
 
-    start_time_main = time.time()
-
     print(f"Starting PDF password cracker for '{pdf_document_path}'")
     print(f"Using library: {library_to_use}, Cores: {num_cores_to_use}")
     print(f"Password length range: {min_pw_len} to {max_pw_len} digits.")
     print(f"Using character set: {charset}")
 
-    found_password = crack_pdf_password_mp(
+    result = crack_pdf_password(
         pdf_document_path,
         library_choice=library_to_use,
         min_len=min_pw_len,
@@ -118,28 +115,33 @@ def main():
         report_worker_errors_arg=args.worker_errors,
     )
 
-    end_time_main = time.time()
-    duration_main = end_time_main - start_time_main
+    if result:
+        status = result.get("status")
+        elapsed_time = result.get("elapsed_time", 0)
+        passwords_checked = result.get("passwords_checked", 0)
+        passwords_per_second = result.get("passwords_per_second", 0)
 
-    if (
-        isinstance(found_password, dict)
-        and found_password.get("status") == "interrupted"
-    ):
-        summary = found_password
-        print("\n--- Cracking Summary ---")
-        print(f"Status: {summary['status'].capitalize()}")
-        print(f"Total Time: {summary['duration']:.2f} seconds")
-        print(f"Passwords Checked: {summary['checked']}")
-        print(f"Average Rate: {summary['rate']:.2f} passwords/sec")
-        print("------------------------")
-    elif found_password:
-        print(f"\nSuccessfully cracked the password: {found_password}")
+        if status == "found":
+            print(f"\nSuccessfully cracked the password: {result['password']}")
+            print(f"Cracking took {elapsed_time:.2f} seconds.")
+            print(f"Passwords checked: {passwords_checked}")
+            print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
+        elif status == "interrupted":
+            print("\nCracking process interrupted by user.")
+            print(f"Elapsed time: {elapsed_time:.2f} seconds.")
+            print(f"Passwords checked: {passwords_checked}")
+            print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
+        elif status == "not_found":
+            print(
+                f"\nFailed to crack the password for lengths {min_pw_len} through {max_pw_len}."
+            )
+            print(f"Elapsed time: {elapsed_time:.2f} seconds.")
+            print(f"Passwords checked: {passwords_checked}")
+            print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
     else:
         print(
             f"\nFailed to crack the password for lengths {min_pw_len} through {max_pw_len}."
         )
-
-    print(f"Total cracking time: {duration_main:.2f} seconds.")
 
 
 if __name__ == "__main__":

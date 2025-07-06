@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from pdf_pycrack.core import crack_pdf_password_mp
+from pdf_pycrack.core import crack_pdf_password
 
 
 @pytest.fixture
@@ -21,10 +21,11 @@ def test_crack_numbers_pdf(pdf_path):
     password = get_password_from_filename(pdf_path)
     password_len = len(password)
     charset = "0123456789"
-    found_password = crack_pdf_password_mp(
+    result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
-    assert found_password == password
+    assert result is not None, f"Failed to crack password for {pdf_path}"
+    assert result["password"] == password
 
 
 @pytest.mark.letters
@@ -33,10 +34,11 @@ def test_crack_letters_pdf(pdf_path):
     password = get_password_from_filename(pdf_path)
     password_len = len(password)
     charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    found_password = crack_pdf_password_mp(
+    result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
-    assert found_password == password
+    assert result is not None, f"Failed to crack password for {pdf_path}"
+    assert result["password"] == password
 
 
 @pytest.mark.special_chars
@@ -45,10 +47,11 @@ def test_crack_special_chars_pdf(pdf_path):
     password = get_password_from_filename(pdf_path)
     password_len = len(password)
     charset = "!@#$%^&*()"
-    found_password = crack_pdf_password_mp(
+    result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
-    assert found_password == password
+    assert result is not None, f"Failed to crack password for {pdf_path}"
+    assert result["password"] == password
 
 
 @pytest.mark.mixed
@@ -57,7 +60,8 @@ def test_crack_mixed_pdf(pdf_path):
     password = get_password_from_filename(pdf_path)
     password_len = len(password)
     charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()"
-    found_password = crack_pdf_password_mp(
+    result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
-    assert found_password == password
+    assert result is not None, f"Failed to crack password for {pdf_path}"
+    assert result["password"] == password
