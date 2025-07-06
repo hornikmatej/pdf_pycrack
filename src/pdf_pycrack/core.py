@@ -10,13 +10,11 @@ from tqdm import tqdm
 
 def crack_pdf_password(
     pdf_path,
-    library_choice="pikepdf",
     min_len=4,
     max_len=5,
     charset="0123456789",
     num_processes=multiprocessing.cpu_count(),
     batch_size_arg=1000,
-    progress_interval_arg=0.1,
     report_worker_errors_arg=False,
 ):
     """
@@ -24,30 +22,26 @@ def crack_pdf_password(
 
     Args:
         pdf_path (str): The path to the PDF file.
-        library_choice (str): The library to use for PDF operations.
         min_len (int): Minimum password length.
         max_len (int): Maximum password length.
         charset (str): Character set for passwords.
         num_processes (int): Number of CPU cores to use.
         batch_size_arg (int): Password batch size for workers.
-        progress_interval_arg (float): Progress bar refresh interval.
         report_worker_errors_arg (bool): Whether to report worker errors.
 
     Returns:
         dict or None: A dictionary with results or None if no password is found.
     """
-    if not _initialize_cracking(pdf_path, library_choice):
+    if not _initialize_cracking(pdf_path):
         return None
 
     result = _manage_workers(
         pdf_path,
-        library_choice,
         min_len,
         max_len,
         charset,
         num_processes,
         batch_size_arg,
-        progress_interval_arg,
         report_worker_errors_arg,
     )
 
@@ -57,41 +51,36 @@ def crack_pdf_password(
     return result
 
 
-def _initialize_cracking(pdf_path, library_choice):
+def _initialize_cracking(pdf_path):
     """
     Checks if the PDF is encrypted and ready for cracking.
 
     Args:
         pdf_path (str): The path to the PDF file.
-        library_choice (str): The library to use for PDF operations.
 
     Returns:
         bool: True if the PDF is encrypted, False otherwise.
     """
-    if library_choice == "pikepdf":
-        try:
-            with pikepdf.open(pdf_path):
-                print(
-                    f"PDF '{pdf_path}' is not user-password encrypted or is empty (checked with pikepdf). Cannot crack."
-                )
-                return False
-        except pikepdf.PasswordError:
-            return True  # PDF is encrypted
-        except Exception as e:
-            print(f"Error during initial check with pikepdf on '{pdf_path}': {e}")
+    try:
+        with pikepdf.open(pdf_path):
+            print(
+                f"PDF '{pdf_path}' is not user-password encrypted or is empty (checked with pikepdf). Cannot crack."
+            )
             return False
-    return False
+    except pikepdf.PasswordError:
+        return True  # PDF is encrypted
+    except Exception as e:
+        print(f"Error during initial check with pikepdf on '{pdf_path}': {e}")
+        return False
 
 
 def _manage_workers(
     pdf_path,
-    library_choice,
     min_len,
     max_len,
     charset,
     num_processes,
     batch_size_arg,
-    progress_interval_arg,
     report_worker_errors_arg,
 ):
     """
@@ -99,13 +88,11 @@ def _manage_workers(
 
     Args:
         pdf_path (str): Path to the PDF file.
-        library_choice (str): PDF library to use.
         min_len (int): Minimum password length.
         max_len (int): Maximum password length.
         charset (str): Character set for passwords.
         num_processes (int): Number of CPU cores to use.
         batch_size_arg (int): Password batch size for workers.
-        progress_interval_arg (float): Progress bar refresh interval.
         report_worker_errors_arg (bool): Whether to report worker errors.
 
     Returns:
@@ -137,7 +124,6 @@ def _manage_workers(
             target=worker,
             args=(
                 pdf_data,
-                library_choice,
                 password_queue,
                 found_event,
                 result_queue,
@@ -238,7 +224,6 @@ def _manage_workers(
 
 def worker(
     pdf_data,
-    library_choice,
     password_queue,
     found_event,
     result_queue,
@@ -250,7 +235,6 @@ def worker(
 
     Args:
         pdf_data (bytes): The in-memory PDF file data.
-        library_choice (str): PDF library to use.
         password_queue (multiprocessing.Queue): Queue to get passwords from.
         found_event (multiprocessing.Event): Event to signal when a password is found.
         result_queue (multiprocessing.Queue): Queue to put the found password in.

@@ -35,12 +35,6 @@ def main():
         help="Number of passwords for a worker to check before reporting progress. Default: 1000",
     )
     parser.add_argument(
-        "--progress_interval",
-        type=float,
-        default=0.1,
-        help="Minimum interval in seconds for refreshing the progress bar. Default: 0.1",
-    )
-    parser.add_argument(
         "--worker_errors",
         action="store_true",  # Makes it a boolean flag, default is False
         help="Enable detailed error reporting from worker processes.",
@@ -89,7 +83,6 @@ def main():
     charset = "".join(sorted(list(set(charset))))
 
     pdf_document_path = args.file
-    library_to_use = "pikepdf"
     num_cores_to_use = args.cores
     min_pw_len = args.min_len
     max_pw_len = args.max_len
@@ -99,21 +92,23 @@ def main():
         exit(1)
 
     print(f"Starting PDF password cracker for '{pdf_document_path}'")
-    print(f"Using library: {library_to_use}, Cores: {num_cores_to_use}")
     print(f"Password length range: {min_pw_len} to {max_pw_len} digits.")
     print(f"Using character set: {charset}")
 
-    result = crack_pdf_password(
-        pdf_document_path,
-        library_choice=library_to_use,
-        min_len=min_pw_len,
-        max_len=max_pw_len,
-        charset=charset,
-        num_processes=num_cores_to_use,
-        batch_size_arg=args.batch_size,
-        progress_interval_arg=args.progress_interval,
-        report_worker_errors_arg=args.worker_errors,
-    )
+    try:
+        result = crack_pdf_password(
+            pdf_document_path,
+            min_len=min_pw_len,
+            max_len=max_pw_len,
+            charset=charset,
+            num_processes=num_cores_to_use,
+            batch_size_arg=args.batch_size,
+            report_worker_errors_arg=args.worker_errors,
+        )
+    except KeyboardInterrupt:
+        print("\nCracking process interrupted by user.")
+        # Create a dummy result for reporting
+        result = {"status": "interrupted"}
 
     if result:
         status = result.get("status")
@@ -128,9 +123,12 @@ def main():
             print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
         elif status == "interrupted":
             print("\nCracking process interrupted by user.")
-            print(f"Elapsed time: {elapsed_time:.2f} seconds.")
-            print(f"Passwords checked: {passwords_checked}")
-            print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
+            if "elapsed_time" in result:
+                print(f"Elapsed time: {elapsed_time:.2f} seconds.")
+            if "passwords_checked" in result:
+                print(f"Passwords checked: {passwords_checked}")
+            if "passwords_per_second" in result and passwords_per_second > 0:
+                print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
         elif status == "not_found":
             print(
                 f"\nFailed to crack the password for lengths {min_pw_len} through {max_pw_len}."
