@@ -1,10 +1,11 @@
-import pikepdf
-from tqdm import tqdm
+import itertools
 import multiprocessing
 import queue
-from io import BytesIO
 import time
-import itertools
+from io import BytesIO
+
+import pikepdf
+from tqdm import tqdm
 
 
 def _initialize_cracking(pdf_path, library_choice):

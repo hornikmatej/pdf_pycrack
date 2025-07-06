@@ -1,7 +1,9 @@
-import pytest
-from pdf_pycrack.core import crack_pdf_password_mp
-import os
 import glob
+import os
+
+import pytest
+
+from pdf_pycrack.core import crack_pdf_password_mp
 
 
 @pytest.fixture

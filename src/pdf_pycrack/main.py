@@ -1,6 +1,7 @@
 import argparse
 import multiprocessing
 import time
+
 from .core import crack_pdf_password_mp
 
 

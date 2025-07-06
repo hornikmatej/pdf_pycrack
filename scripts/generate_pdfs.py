@@ -1,5 +1,6 @@
-import pikepdf
 import os
+
+import pikepdf
 
 
 def create_password_protected_pdf(output_path, password):
