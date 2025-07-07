@@ -55,6 +55,18 @@ For a full list of options, run:
 uv run pdf-pycrack --help
 ```
 
+## Benchmarking
+
+To measure the performance of `pdf-pycrack`, you can run the dedicated benchmark script. This script is designed to be independent of the main application and provides a consistent way to measure password cracking speed.
+
+To run the benchmark, use the following command:
+
+```bash
+uv run python benchmark/run.py
+```
+
+The benchmark script will run with a predefined configuration, which can be modified in the `benchmark/run.py` file to test different scenarios.
+
 ## Core Concepts
 
 `pdf-pycrack` works by generating a vast number of password combinations and testing them in parallel. Here’s how it works:

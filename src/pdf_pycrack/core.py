@@ -197,7 +197,12 @@ def _manage_workers(
                 pbar.update(progress)
                 passwords_processed += progress
             except queue.Empty:
-                if not any(p.is_alive() for p in processes):
+                # Check if the generator is done and the queue is empty
+                if (
+                    not generator_process.is_alive()
+                    and password_queue.empty()
+                    and not any(p.is_alive() for p in processes)
+                ):
                     break
                 continue
 
@@ -220,7 +225,8 @@ def _manage_workers(
 
     # Final progress update
     while not progress_queue.empty():
-        pbar.update(progress_queue.get_nowait())
+        passwords_processed += progress_queue.get_nowait()
+    pbar.update(total_passwords_to_check - pbar.n)
 
     # Collect the final result if found
     if not found_password:
