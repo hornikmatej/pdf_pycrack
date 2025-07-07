@@ -46,3 +46,9 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = "src"
+markers = [
+    "numbers: tests with numbers",
+    "letters: tests with letters",
+    "special_chars: tests with special characters",
+    "mixed: tests with mixed characters",
+]
