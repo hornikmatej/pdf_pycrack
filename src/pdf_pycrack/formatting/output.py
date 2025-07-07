@@ -42,7 +42,7 @@ def print_end_info(result):
 
     if status == "found":
         end_message = Text.from_markup(
-            f"Password found: [bold green]{password}[/bold green]"
+            f"Password found: [bold green]{repr(password)}[/bold green]"
         )
         panel_title = "[bold green]Cracking Successful[/bold green]"
         border_style = "green"
