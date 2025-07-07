@@ -3,6 +3,7 @@ import time
 from .cli import setup_arg_parser
 from .core import crack_pdf_password
 from .formatting.output import print_end_info, print_start_info
+from .models.cracking_result import CrackingInterrupted, PasswordNotFound
 
 
 def main():
@@ -57,19 +58,25 @@ def main():
             report_worker_errors_arg=args.worker_errors,
         )
     except KeyboardInterrupt:
-        result = {
-            "status": "interrupted",
-            "elapsed_time": time.time() - start_time,
-        }
+        result = CrackingInterrupted(
+            passwords_checked=0,  # This will be unknown
+            elapsed_time=time.time() - start_time,
+        )
 
     if result:
         # Only print end info if cracking started
-        if result.get("status") != "not_encrypted":
+        if result.status != "not_encrypted":
             print_end_info(result)
     else:
         # Fallback for unexpected cases where result is None (e.g. file not found)
         end_time = time.time()
-        print_end_info({"status": "not_found", "elapsed_time": end_time - start_time})
+        print_end_info(
+            PasswordNotFound(
+                elapsed_time=end_time - start_time,
+                passwords_checked=0,
+                passwords_per_second=0,
+            )
+        )
 
 
 if __name__ == "__main__":

@@ -43,6 +43,7 @@ dev = [
     "black>=24.4.2",
     "ruff>=0.5.5",
     "pre-commit>=4.2.0",
+    "isort>=6.0.1",
 ]
 
 [tool.pytest.ini_options]
@@ -53,3 +54,6 @@ markers = [
     "special_chars: tests with special characters",
     "mixed: tests with mixed characters",
 ]
+
+[tool.isort]
+profile = "black"

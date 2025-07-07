@@ -7,6 +7,14 @@ import pikepdf
 from tqdm import tqdm
 
 from .formatting.errors import print_error
+from .models.cracking_result import (
+    CrackingInterrupted,
+    FileReadError,
+    InitializationError,
+    NotEncrypted,
+    PasswordFound,
+    PasswordNotFound,
+)
 from .password_generator import generate_passwords
 
 
@@ -32,17 +40,22 @@ def crack_pdf_password(
         report_worker_errors_arg (bool): Whether to report worker errors.
 
     Returns:
-        dict or None: A dictionary with results or None if no password is found.
+        CrackResult: A dataclass with the cracking result.
     """
+    start_time = time.time()
     try:
         if not _initialize_cracking(pdf_path):
-            return {"status": "not_encrypted"}
+            return NotEncrypted(elapsed_time=time.time() - start_time)
     except FileNotFoundError as e:
         print_error("File Not Found", str(e))
-        return None
+        return FileReadError(
+            error_message=str(e), elapsed_time=time.time() - start_time
+        )
     except Exception as e:
         print_error("Initialization Error", str(e))
-        return None
+        return InitializationError(
+            error_message=str(e), elapsed_time=time.time() - start_time
+        )
 
     result = _manage_workers(
         pdf_path,
@@ -54,11 +67,13 @@ def crack_pdf_password(
         report_worker_errors_arg,
     )
 
-    if isinstance(result, dict) and result.get("status") == "interrupted":
+    if isinstance(result, CrackingInterrupted):
         return result
 
     if result is None:
-        return {"status": "not_found"}
+        return PasswordNotFound(
+            passwords_checked=0, elapsed_time=0.0, passwords_per_second=0.0
+        )
 
     return result
 
@@ -144,7 +159,7 @@ def _manage_workers(
         report_worker_errors_arg (bool): Whether to report worker errors.
 
     Returns:
-        str or dict or None: The found password, an interruption summary, or None.
+        CrackResult or None: The result of the cracking process.
     """
     start_time = time.time()
     total_passwords_to_check = sum(
@@ -156,7 +171,9 @@ def _manage_workers(
             pdf_data = f.read()
     except IOError as e:
         print_error("File Read Error", f"Error reading PDF file: {e}")
-        return None
+        return FileReadError(
+            error_message=str(e), elapsed_time=time.time() - start_time
+        )
 
     manager = multiprocessing.Manager()
     found_event = manager.Event()
@@ -256,27 +273,24 @@ def _manage_workers(
     )
 
     if interrupted:
-        return {
-            "status": "interrupted",
-            "passwords_checked": passwords_processed,
-            "elapsed_time": elapsed_time,
-        }
+        return CrackingInterrupted(
+            passwords_checked=passwords_processed,
+            elapsed_time=elapsed_time,
+        )
 
     if found_password:
-        return {
-            "status": "found",
-            "password": found_password,
-            "passwords_checked": passwords_processed,
-            "elapsed_time": elapsed_time,
-            "passwords_per_second": passwords_per_second,
-        }
+        return PasswordFound(
+            password=found_password,
+            passwords_checked=passwords_processed,
+            elapsed_time=elapsed_time,
+            passwords_per_second=passwords_per_second,
+        )
 
-    return {
-        "status": "not_found",
-        "passwords_checked": passwords_processed,
-        "elapsed_time": elapsed_time,
-        "passwords_per_second": passwords_per_second,
-    }
+    return PasswordNotFound(
+        passwords_checked=passwords_processed,
+        elapsed_time=elapsed_time,
+        passwords_per_second=passwords_per_second,
+    )
 
 
 def worker(

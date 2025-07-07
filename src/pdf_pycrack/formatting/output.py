@@ -5,6 +5,13 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from ..models.cracking_result import (
+    CrackingInterrupted,
+    CrackResult,
+    PasswordFound,
+    PasswordNotFound,
+)
+
 console = Console()
 
 
@@ -33,24 +40,22 @@ def print_start_info(
     console.print(panel)
 
 
-def print_end_info(result):
+def print_end_info(result: CrackResult):
     """Prints the final result and duration in a formatted panel."""
 
-    status = result.get("status")
-    duration = result.get("elapsed_time", 0)
-    password = result.get("password")
+    duration = result.elapsed_time
 
-    if status == "found":
+    if isinstance(result, PasswordFound):
         end_message = Text.from_markup(
-            f"Password found: [bold green]{repr(password)}[/bold green]"
+            f"Password found: [bold green]{repr(result.password)}[/bold green]"
         )
         panel_title = "[bold green]Cracking Successful[/bold green]"
         border_style = "green"
-    elif status == "interrupted":
+    elif isinstance(result, CrackingInterrupted):
         end_message = Text.from_markup("Cracking process interrupted by user.")
         panel_title = "[bold yellow]Cracking Interrupted[/bold yellow]"
         border_style = "yellow"
-    else:  # not_found
+    else:  # PasswordNotFound
         end_message = Text.from_markup(
             "Password not found within the specified constraints."
         )
@@ -64,12 +69,15 @@ def print_end_info(result):
     grid.add_row("Status:", end_message)
     grid.add_row("Duration:", f"[cyan]{duration:.2f} seconds[/cyan]")
 
-    passwords_checked = result.get("passwords_checked", 0)
-    passwords_per_second = result.get("passwords_per_second", 0)
-
-    if passwords_checked > 0:
-        grid.add_row("Passwords Checked:", f"[cyan]{passwords_checked}[/cyan]")
-        grid.add_row("Passwords/Second:", f"[cyan]{passwords_per_second:.2f}[/cyan]")
+    if isinstance(result, (PasswordFound, PasswordNotFound, CrackingInterrupted)):
+        passwords_checked = result.passwords_checked
+        if passwords_checked > 0:
+            grid.add_row("Passwords Checked:", f"[cyan]{passwords_checked}[/cyan]")
+            if isinstance(result, (PasswordFound, PasswordNotFound)):
+                passwords_per_second = result.passwords_per_second
+                grid.add_row(
+                    "Passwords/Second:", f"[cyan]{passwords_per_second:.2f}[/cyan]"
+                )
 
     panel = Panel(grid, title=panel_title, border_style=border_style, padding=(1, 2))
     console.print(panel)
