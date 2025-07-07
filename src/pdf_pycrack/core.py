@@ -43,6 +43,13 @@ def crack_pdf_password(
         CrackResult: A dataclass with the cracking result.
     """
     start_time = time.time()
+
+    if not charset:
+        return InitializationError(
+            error_message="Charset cannot be empty.",
+            elapsed_time=time.time() - start_time,
+        )
+
     try:
         if not _initialize_cracking(pdf_path):
             return NotEncrypted(elapsed_time=time.time() - start_time)

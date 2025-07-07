@@ -4,7 +4,13 @@ import os
 import pytest
 
 from pdf_pycrack.core import crack_pdf_password
-from pdf_pycrack.models.cracking_result import PasswordFound
+from pdf_pycrack.models.cracking_result import (
+    FileReadError,
+    InitializationError,
+    NotEncrypted,
+    PasswordFound,
+    PasswordNotFound,
+)
 
 
 @pytest.fixture
@@ -47,7 +53,7 @@ def test_crack_letters_pdf(pdf_path):
 def test_crack_special_chars_pdf(pdf_path):
     password = get_password_from_filename(pdf_path)
     password_len = len(password)
-    charset = "!@#$%^&*()"
+    charset = "!@#$%^&*() "
     result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
@@ -66,3 +72,40 @@ def test_crack_mixed_pdf(pdf_path):
     )
     assert isinstance(result, PasswordFound), f"Failed to crack password for {pdf_path}"
     assert result.password == password
+
+
+def test_not_encrypted_pdf():
+    pdf_path = "tests/test_pdfs/unencrypted.pdf"
+    result = crack_pdf_password(pdf_path, min_len=1, max_len=1, charset="a")
+    assert isinstance(
+        result, NotEncrypted
+    ), f"Expected NotEncrypted for {pdf_path}, but got {type(result).__name__}"
+
+
+def test_file_read_error():
+    pdf_path = "tests/test_pdfs/non_existent_file.pdf"
+    result = crack_pdf_password(pdf_path, min_len=1, max_len=1, charset="a")
+    assert isinstance(
+        result, FileReadError
+    ), f"Expected FileReadError for {pdf_path}, but got {type(result).__name__}"
+
+
+def test_initialization_error_empty_charset():
+    pdf_path = "tests/test_pdfs/numbers/100.pdf"  # Use any valid PDF path
+    result = crack_pdf_password(pdf_path, min_len=1, max_len=1, charset="")
+    assert isinstance(
+        result, InitializationError
+    ), f"Expected InitializationError for empty charset, but got {type(result).__name__}"
+
+
+def test_password_not_found():
+    # Use an existing encrypted PDF and a charset that won't find the password
+    pdf_path = "tests/test_pdfs/numbers/100.pdf"
+    password_len = 3
+    charset = "abc"  # This charset will not find "100"
+    result = crack_pdf_password(
+        pdf_path, min_len=password_len, max_len=password_len, charset=charset
+    )
+    assert isinstance(
+        result, PasswordNotFound
+    ), f"Expected PasswordNotFound for {pdf_path}, but got {type(result).__name__}"
