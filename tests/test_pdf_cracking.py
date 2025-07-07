@@ -4,6 +4,7 @@ import os
 import pytest
 
 from pdf_pycrack.core import crack_pdf_password
+from pdf_pycrack.models.cracking_result import PasswordFound
 
 
 @pytest.fixture
@@ -24,8 +25,8 @@ def test_crack_numbers_pdf(pdf_path):
     result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
-    assert result is not None, f"Failed to crack password for {pdf_path}"
-    assert result["password"] == password
+    assert isinstance(result, PasswordFound), f"Failed to crack password for {pdf_path}"
+    assert result.password == password
 
 
 @pytest.mark.letters
@@ -37,8 +38,8 @@ def test_crack_letters_pdf(pdf_path):
     result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
-    assert result is not None, f"Failed to crack password for {pdf_path}"
-    assert result["password"] == password
+    assert isinstance(result, PasswordFound), f"Failed to crack password for {pdf_path}"
+    assert result.password == password
 
 
 @pytest.mark.special_chars
@@ -50,8 +51,8 @@ def test_crack_special_chars_pdf(pdf_path):
     result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
-    assert result is not None, f"Failed to crack password for {pdf_path}"
-    assert result["password"] == password
+    assert isinstance(result, PasswordFound), f"Failed to crack password for {pdf_path}"
+    assert result.password == password
 
 
 @pytest.mark.mixed
@@ -63,5 +64,5 @@ def test_crack_mixed_pdf(pdf_path):
     result = crack_pdf_password(
         pdf_path, min_len=password_len, max_len=password_len, charset=charset
     )
-    assert result is not None, f"Failed to crack password for {pdf_path}"
-    assert result["password"] == password
+    assert isinstance(result, PasswordFound), f"Failed to crack password for {pdf_path}"
+    assert result.password == password

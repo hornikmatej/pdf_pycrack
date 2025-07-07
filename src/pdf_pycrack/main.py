@@ -17,7 +17,7 @@ def main():
     if args.charset_letters:
         charset += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     if args.charset_special:
-        charset += "!@#$%^&*()"
+        charset += "!@#$%^&*() "
 
     # Default to numbers if no charset is specified
     if not charset:
