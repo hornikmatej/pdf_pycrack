@@ -1,5 +1,8 @@
+import time
+
 from .cli import setup_arg_parser
 from .core import crack_pdf_password
+from .formatting.output import print_end_info, print_start_info
 
 
 def main():
@@ -31,9 +34,17 @@ def main():
     if min_pw_len <= 0 or max_pw_len <= 0 or min_pw_len > max_pw_len:
         print("Error: Password lengths must be positive and min_len <= max_len.")
         exit(1)
-    print(f"Starting PDF password cracker for '{pdf_document_path}'")
-    print(f"Password length range: {min_pw_len} to {max_pw_len} digits.")
-    print(f"Using character set: {charset}")
+
+    start_time = time.time()
+    print_start_info(
+        pdf_document_path,
+        min_pw_len,
+        max_pw_len,
+        charset,
+        args.batch_size,
+        num_cores_to_use,
+        start_time,
+    )
 
     try:
         result = crack_pdf_password(
@@ -46,44 +57,19 @@ def main():
             report_worker_errors_arg=args.worker_errors,
         )
     except KeyboardInterrupt:
-        print("\nCracking process interrupted by user.")
-        # Create a dummy result for reporting
-        result = {"status": "interrupted"}
+        result = {
+            "status": "interrupted",
+            "elapsed_time": time.time() - start_time,
+        }
 
     if result:
-        status = result.get("status")
-        elapsed_time = result.get("elapsed_time", 0)
-        passwords_checked = result.get("passwords_checked", 0)
-        passwords_per_second = result.get("passwords_per_second", 0)
-
-        if status == "found":
-            print(f"\nSuccessfully cracked the password: {result['password']}")
-            print(f"Cracking took {elapsed_time:.2f} seconds.")
-            print(f"Passwords checked: {passwords_checked}")
-            print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
-        elif status == "interrupted":
-            print("\nCracking process interrupted by user.")
-            if "elapsed_time" in result:
-                print(f"Elapsed time: {elapsed_time:.2f} seconds.")
-            if "passwords_checked" in result:
-                print(f"Passwords checked: {passwords_checked}")
-            if (
-                "passwords_per_second" in result
-                and isinstance(passwords_per_second, (int, float))
-                and passwords_per_second > 0
-            ):
-                print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
-        elif status == "not_found":
-            print(
-                f"\nFailed to crack the password for lengths {min_pw_len} through {max_pw_len}."
-            )
-            print(f"Elapsed time: {elapsed_time:.2f} seconds.")
-            print(f"Passwords checked: {passwords_checked}")
-            print(f"Average rate: {passwords_per_second:.2f} passwords/sec")
+        # Only print end info if cracking started
+        if result.get("status") != "not_encrypted":
+            print_end_info(result)
     else:
-        print(
-            f"\nFailed to crack the password for lengths {min_pw_len} through {max_pw_len}."
-        )
+        # Fallback for unexpected cases where result is None (e.g. file not found)
+        end_time = time.time()
+        print_end_info({"status": "not_found", "elapsed_time": end_time - start_time})
 
 
 if __name__ == "__main__":

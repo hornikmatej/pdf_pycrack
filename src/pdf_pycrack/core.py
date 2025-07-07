@@ -6,6 +6,7 @@ from io import BytesIO
 import pikepdf
 from tqdm import tqdm
 
+from .formatting.errors import print_error
 from .password_generator import generate_passwords
 
 
@@ -33,7 +34,14 @@ def crack_pdf_password(
     Returns:
         dict or None: A dictionary with results or None if no password is found.
     """
-    if not _initialize_cracking(pdf_path):
+    try:
+        if not _initialize_cracking(pdf_path):
+            return {"status": "not_encrypted"}
+    except FileNotFoundError as e:
+        print_error("File Not Found", str(e))
+        return None
+    except Exception as e:
+        print_error("Initialization Error", str(e))
         return None
 
     result = _manage_workers(
@@ -48,6 +56,9 @@ def crack_pdf_password(
 
     if isinstance(result, dict) and result.get("status") == "interrupted":
         return result
+
+    if result is None:
+        return {"status": "not_found"}
 
     return result
 
@@ -70,9 +81,12 @@ def _initialize_cracking(pdf_path):
             return False
     except pikepdf.PasswordError:
         return True  # PDF is encrypted
+    except FileNotFoundError:
+        raise  # Re-raise to be caught by the caller
     except Exception as e:
-        print(f"Error during initial check with pikepdf on '{pdf_path}': {e}")
-        return False
+        raise RuntimeError(
+            f"Error during initial check with pikepdf on '{pdf_path}': {e}"
+        )
 
 
 def _password_generator_process(
@@ -141,7 +155,7 @@ def _manage_workers(
         with open(pdf_path, "rb") as f:
             pdf_data = f.read()
     except IOError as e:
-        print(f"Error reading PDF file: {e}")
+        print_error("File Read Error", f"Error reading PDF file: {e}")
         return None
 
     manager = multiprocessing.Manager()
@@ -257,7 +271,12 @@ def _manage_workers(
             "passwords_per_second": passwords_per_second,
         }
 
-    return None
+    return {
+        "status": "not_found",
+        "passwords_checked": passwords_processed,
+        "elapsed_time": elapsed_time,
+        "passwords_per_second": passwords_per_second,
+    }
 
 
 def worker(
