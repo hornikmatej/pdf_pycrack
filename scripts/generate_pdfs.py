@@ -8,8 +8,10 @@ def create_password_protected_pdf(output_path, password):
     # Add a blank page to the PDF
     pdf.add_blank_page()
     no_perms = pikepdf.Permissions(extract=False, modify_annotation=False)
-    pdf.permissions = no_perms
-    pdf.save(output_path, encryption=pikepdf.Encryption(owner=password, user=password))
+    pdf.save(
+        output_path,
+        encryption=pikepdf.Encryption(owner=password, user=password, allow=no_perms),
+    )
     print(f"Created: {output_path} with password '{password}'")
 
 
@@ -28,7 +30,7 @@ def generate_test_pdfs(base_dir="tests/test_pdfs"):
         )
 
     # Generate letter passwords
-    letter_passwords = ["abc", "def", "ghi", "jkl", "mno"]
+    letter_passwords = ["ab", "df", "gi", "jk", "mn"]
     for password in letter_passwords:
         create_password_protected_pdf(
             os.path.join(base_dir, "letters", f"{password}.pdf"), password
@@ -42,7 +44,7 @@ def generate_test_pdfs(base_dir="tests/test_pdfs"):
         )
 
     # Generate mixed passwords
-    mixed_passwords = ["a1B2", "c3D4!", "E5f6$"]
+    mixed_passwords = ["a1", "4!", "E$"]
     for password in mixed_passwords:
         create_password_protected_pdf(
             os.path.join(base_dir, "mixed", f"{password}.pdf"), password
@@ -50,4 +52,5 @@ def generate_test_pdfs(base_dir="tests/test_pdfs"):
 
 
 if __name__ == "__main__":
+    generate_test_pdfs()
     generate_test_pdfs()
