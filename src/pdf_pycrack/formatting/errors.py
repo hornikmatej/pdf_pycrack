@@ -4,7 +4,7 @@ from rich.panel import Panel
 console = Console()
 
 
-def print_error(title, message):
+def print_error(title: str, message: str) -> None:
     """Prints an error message in a formatted panel."""
     panel = Panel(
         f"[white]{message}[/white]",

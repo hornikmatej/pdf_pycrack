@@ -2,6 +2,7 @@ import multiprocessing
 import queue
 import time
 from io import BytesIO
+from typing import Optional
 
 import pikepdf
 from tqdm import tqdm
@@ -9,6 +10,7 @@ from tqdm import tqdm
 from .formatting.errors import print_error
 from .models.cracking_result import (
     CrackingInterrupted,
+    CrackResult,
     FileReadError,
     InitializationError,
     NotEncrypted,
@@ -19,28 +21,28 @@ from .password_generator import generate_passwords
 
 
 def crack_pdf_password(
-    pdf_path,
-    min_len=4,
-    max_len=5,
-    charset="0123456789",
-    num_processes=multiprocessing.cpu_count(),
-    batch_size_arg=5000,
-    report_worker_errors_arg=True,
-):
+    pdf_path: str,
+    min_len: int = 4,
+    max_len: int = 5,
+    charset: str = "0123456789",
+    num_processes: int = multiprocessing.cpu_count(),
+    batch_size_arg: int = 5000,
+    report_worker_errors_arg: bool = True,
+) -> CrackResult:
     """
     Crack a PDF password using multiple processes.
 
     Args:
-        pdf_path (str): The path to the PDF file.
-        min_len (int): Minimum password length.
-        max_len (int): Maximum password length.
-        charset (str): Character set for passwords.
-        num_processes (int): Number of CPU cores to use.
-        batch_size_arg (int): Password batch size for workers.
-        report_worker_errors_arg (bool): Whether to report worker errors.
+        pdf_path: The path to the PDF file.
+        min_len: Minimum password length.
+        max_len: Maximum password length.
+        charset: Character set for passwords.
+        num_processes: Number of CPU cores to use.
+        batch_size_arg: Password batch size for workers.
+        report_worker_errors_arg: Whether to report worker errors.
 
     Returns:
-        CrackResult: A dataclass with the cracking result.
+        A dataclass with the cracking result.
     """
     start_time = time.time()
 
@@ -85,15 +87,15 @@ def crack_pdf_password(
     return result
 
 
-def _initialize_cracking(pdf_path):
+def _initialize_cracking(pdf_path: str) -> bool:
     """
     Checks if the PDF is encrypted and ready for cracking.
 
     Args:
-        pdf_path (str): The path to the PDF file.
+        pdf_path: The path to the PDF file.
 
     Returns:
-        bool: True if the PDF is encrypted, False otherwise.
+        True if the PDF is encrypted, False otherwise.
     """
     try:
         with pikepdf.open(pdf_path):
@@ -113,22 +115,22 @@ def _initialize_cracking(pdf_path):
 
 def _password_generator_process(
     password_queue,
-    min_len,
-    max_len,
-    charset,
+    min_len: int,
+    max_len: int,
+    charset: str,
     stop_generating_event,
-    num_processes,
-):
+    num_processes: int,
+) -> None:
     """
     A separate process to generate and queue passwords.
 
     Args:
-        password_queue (multiprocessing.Queue): Queue to put passwords into.
-        min_len (int): Minimum password length.
-        max_len (int): Maximum password length.
-        charset (str): Character set for passwords.
-        stop_generating_event (multiprocessing.Event): Event to signal when to stop.
-        num_processes (int): Number of worker processes.
+        password_queue: Queue to put passwords into.
+        min_len: Minimum password length.
+        max_len: Maximum password length.
+        charset: Character set for passwords.
+        stop_generating_event: Event to signal when to stop.
+        num_processes: Number of worker processes.
     """
     password_generator = generate_passwords(min_len, max_len, charset)
 
@@ -145,28 +147,28 @@ def _password_generator_process(
 
 
 def _manage_workers(
-    pdf_path,
-    min_len,
-    max_len,
-    charset,
-    num_processes,
-    batch_size_arg,
-    report_worker_errors_arg,
-):
+    pdf_path: str,
+    min_len: int,
+    max_len: int,
+    charset: str,
+    num_processes: int,
+    batch_size_arg: int,
+    report_worker_errors_arg: bool,
+) -> Optional[CrackResult]:
     """
     Manages worker processes for password cracking.
 
     Args:
-        pdf_path (str): Path to the PDF file.
-        min_len (int): Minimum password length.
-        max_len (int): Maximum password length.
-        charset (str): Character set for passwords.
-        num_processes (int): Number of CPU cores to use.
-        batch_size_arg (int): Password batch size for workers.
-        report_worker_errors_arg (bool): Whether to report worker errors.
+        pdf_path: Path to the PDF file.
+        min_len: Minimum password length.
+        max_len: Maximum password length.
+        charset: Character set for passwords.
+        num_processes: Number of CPU cores to use.
+        batch_size_arg: Password batch size for workers.
+        report_worker_errors_arg: Whether to report worker errors.
 
     Returns:
-        CrackResult or None: The result of the cracking process.
+        The result of the cracking process, or None if initialization failed.
     """
     start_time = time.time()
     total_passwords_to_check = sum(
@@ -301,25 +303,25 @@ def _manage_workers(
 
 
 def worker(
-    pdf_data,
+    pdf_data: bytes,
     password_queue,
     found_event,
     result_queue,
     progress_queue,
-    report_worker_errors,
-    batch_size,
-):
+    report_worker_errors: bool,
+    batch_size: int,
+) -> None:
     """
     Worker process for cracking PDF passwords.
 
     Args:
-        pdf_data (bytes): The in-memory PDF file data.
-        password_queue (multiprocessing.Queue): Queue to get passwords from.
-        found_event (multiprocessing.Event): Event to signal when a password is found.
-        result_queue (multiprocessing.Queue): Queue to put the found password in.
-        progress_queue (multiprocessing.Queue): Queue to report progress.
-        report_worker_errors (bool): Whether to report worker errors.
-        batch_size (int): The number of passwords to process in a batch.
+        pdf_data: The in-memory PDF file data.
+        password_queue: Queue to get passwords from.
+        found_event: Event to signal when a password is found.
+        result_queue: Queue to put the found password in.
+        progress_queue: Queue to report progress.
+        report_worker_errors: Whether to report worker errors.
+        batch_size: The number of passwords to process in a batch.
     """
     passwords = []
     try:

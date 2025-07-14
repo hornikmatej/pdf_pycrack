@@ -1,3 +1,23 @@
-from .core import crack_pdf_password
+"""PDF PyCrack - A high-performance PDF password cracking tool."""
 
-__all__ = ["crack_pdf_password"]
+from .core import crack_pdf_password
+from .models import (
+    CrackingInterrupted,
+    CrackResult,
+    FileReadError,
+    InitializationError,
+    NotEncrypted,
+    PasswordFound,
+    PasswordNotFound,
+)
+
+__all__ = [
+    "crack_pdf_password",
+    "CrackResult",
+    "PasswordFound",
+    "PasswordNotFound",
+    "CrackingInterrupted",
+    "NotEncrypted",
+    "FileReadError",
+    "InitializationError",
+]

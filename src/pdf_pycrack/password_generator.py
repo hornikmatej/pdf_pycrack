@@ -1,7 +1,8 @@
 import itertools
+from typing import Iterator
 
 
-def generate_passwords(min_len, max_len, charset):
+def generate_passwords(min_len: int, max_len: int, charset: str) -> Iterator[str]:
     """Generator for passwords within a given length range and character set."""
     return (
         "".join(p_tuple)

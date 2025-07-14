@@ -16,8 +16,14 @@ console = Console()
 
 
 def print_start_info(
-    pdf_file, min_length, max_length, charset, batch_size, cores, start_time
-):
+    pdf_file: str,
+    min_length: int,
+    max_length: int,
+    charset: str,
+    batch_size: int,
+    cores: int,
+    start_time: float,
+) -> None:
     """Prints the starting information in a formatted panel."""
 
     grid = Table.grid(expand=True)
@@ -40,7 +46,7 @@ def print_start_info(
     console.print(panel)
 
 
-def print_end_info(result: CrackResult):
+def print_end_info(result: CrackResult) -> None:
     """Prints the final result and duration in a formatted panel."""
 
     duration = result.elapsed_time

@@ -2,7 +2,7 @@ import argparse
 import multiprocessing
 
 
-def setup_arg_parser():
+def setup_arg_parser() -> argparse.ArgumentParser:
     """Sets up and returns the argument parser for the command-line interface."""
     parser = argparse.ArgumentParser(
         description="Crack PDF passwords using brute-force."
