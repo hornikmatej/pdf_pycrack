@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-07-14T23:31:59.801161",
+  "pdf_path": "tests/test_pdfs/numbers/100.pdf",
+  "min_len": 4,
+  "max_len": 5,
+  "charset": "0123456789",
+  "charset_length": 10,
+  "search_space": 110000,
+  "num_processes": 14,
+  "batch_size": 100,
+  "elapsed_time": 19.24546194076538,
+  "cpu_time": 0.17162900000000003,
+  "passwords_checked": 110000,
+  "passwords_per_second": 5715.63313671365,
+  "description": "Standard benchmark - numbers 4-5 length",
+  "result_type": "PasswordNotFound"
+}
