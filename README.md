@@ -1,3 +1,4 @@
+
 # PDF-PyCrack
 
 [![PyPI version](https://badge.fury.io/py/pdf-pycrack.svg)](https://badge.fury.io/py/pdf-pycrack)
@@ -6,137 +7,146 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 
-A fast, parallel PDF password cracker written in Python.
+**A blazing fast, parallel PDF password cracker for Python 3.12+.**
+
+---
+
 
 ## Table of Contents
 
 - [Features](#features)
 - [Installation](#installation)
+- [Quick Start](#quick-start)
 - [Usage](#usage)
-- [Core Concepts](#core-concepts)
+- [Benchmarking](#benchmarking)
+- [Testing & Error Handling](#testing--error-handling)
 - [Contributing](#contributing)
 - [License](#license)
 
+
 ## Features
 
--   **Multi-core Cracking:** Utilizes all available CPU cores to accelerate password searching.
--   **Efficient Memory Usage:** Optimized for low memory consumption, even with large PDF files.
--   **Resilient Workers:** Individual worker processes are designed to handle errors silently, ensuring the cracking process continues uninterrupted.
--   **Progress Tracking:** A real-time progress bar keeps you updated on the cracking process.
--   **Adjustable Parameters:** Fine-tune performance with options for password length, batch size, and progress reporting.
+- **Multi-core Cracking:** Utilizes all CPU cores for maximum speed.
+- **Efficient Memory Usage:** Handles large PDFs with minimal RAM.
+- **Resilient Workers:** Worker processes handle errors gracefully; the main process continues.
+- **Progress Tracking:** Real-time progress bar and statistics.
+- **Customizable:** Tune password length, charset, batch size, and more.
+- **Comprehensive Error Handling:** Clear error messages and robust test coverage for all edge cases.
+
 
 ## Installation
 
-Recommended to install with `uv`:
+Install from PyPI (recommended):
 
 ```bash
 uv pip install pdf-pycrack
 ```
 
-For development, clone the repository and sync the environment:
+For development:
 
 ```bash
-git clone https://github.com/your-username/pdf_pycrack.git
+git clone https://github.com/hornikmatej/pdf_pycrack.git
 cd pdf_pycrack
 uv sync
 ```
 
-## Usage
 
-To run the PDF cracker, use the following command:
+## Quick Start
 
 ```bash
 uv run pdf-pycrack <path_to_pdf>
 ```
 
-For a full list of options, run:
+For all options:
 
 ```bash
 uv run pdf-pycrack --help
 ```
 
-## Benchmarking
+## Usage
 
-To measure the performance of `pdf-pycrack`, you can run the dedicated benchmark script. This script is designed to be independent of the main application and provides a consistent way to measure password cracking speed.
-
-To run the benchmark, use the following command:
+**Basic usage:**
 
 ```bash
-uv run python benchmark/run.py
+uv run pdf-pycrack tests/test_pdfs/numbers/100.pdf
 ```
 
-The benchmark script will run with a predefined configuration, which can be modified in the `benchmark/run.py` file to test different scenarios.
+**Custom charset and length:**
 
-## Core Concepts
+```bash
+uv run pdf-pycrack tests/test_pdfs/letters/ab.pdf --min-len 2 --max-len 2 --charset abcdef
+```
 
-`pdf-pycrack` works by generating a vast number of password combinations and testing them in parallel. Here’s how it works:
 
-1.  **Password Generation:** It generates passwords based on a specified character set and length range.
-2.  **Parallel Processing:** The password list is divided into batches, and each batch is processed by a separate worker process.
-3.  **Password Cracking:** Each worker attempts to decrypt the PDF with its batch of passwords.
-4.  **Result Aggregation:** If a worker finds the correct password, it signals the main process, and the search stops.
+## Benchmarking
 
-## Contributing
+Measure and compare password cracking speed with the advanced benchmarking tool:
 
-Contributions are welcome! Please follow these steps to contribute.
+```bash
+uv run python benchmark/benchmark.py --standard
+```
 
-### Prerequisites
+**Custom runs:**
 
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/)
+```bash
+uv run python benchmark/benchmark.py --pdf tests/test_pdfs/letters/ab.pdf --min-len 1 --max-len 2 --charset abcdef
+uv run python benchmark/benchmark.py --processes 4 --batch-size 1000
+```
 
-### Setup
+Results are saved in `benchmark/results/` as JSON and CSV. See [`benchmark/README.md`](benchmark/README.md) for full details, options, and integration tips.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/pdf_pycrack.git
-    cd pdf_pycrack
-    ```
-2.  **Create and sync the environment:**
-    ```bash
-    uv sync
-    ```
-3.  **Activate the virtual environment:**
-    ```bash
-    source .venv/bin/activate
-    ```
 
-### Static Checks
+## Testing & Error Handling
 
-This project uses `pre-commit` for code formatting and linting.
-
--   **Install pre-commit hooks:**
-    ```bash
-    uv run pre-commit install
-    ```
--   **Run checks manually:**
-    ```bash
-    uv run pre-commit run --all-files
-    ```
-
-### Unit Tests
-
-Run tests using `pytest`:
+Run all tests:
 
 ```bash
 uv run pytest
 ```
 
-Tests are marked with categories. You can run specific subsets of tests using `-m <marker_name>`:
+Tests are marked by category:
 
--   `numbers`: `uv run pytest -m numbers`
--   `letters`: `uv run pytest -m letters`
--   `special_chars`: `uv run pytest -m special_chars`
--   `mixed`: `uv run pytest -m mixed`
+- `numbers`, `letters`, `special_chars`, `mixed`
 
-### Pull Requests
+Run a subset:
 
-1.  Fork the repository.
-2.  Create a feature branch.
-3.  Make your changes and add/update tests.
-4.  Ensure all tests and pre-commit hooks pass.
-5.  Open a pull request.
+```bash
+uv run pytest -m numbers
+```
+
+**Error Handling:**
+
+The suite in `tests/test_error_handling.py` covers:
+- File not found, permission denied, directory instead of file
+- Corrupted/unencrypted PDFs
+- Empty charset, invalid parameters
+- Memory errors, worker process failures
+
+All errors are reported with clear messages and suggested actions.
+
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes and add/update tests
+4. Run all tests and pre-commit hooks:
+    ```bash
+    uv run pre-commit install
+    uv run pre-commit run --all-files
+    uv run pytest
+    ```
+5. Open a pull request
+
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+**Further documentation:**
+- [Benchmarking Guide](benchmark/README.md)
+- [Test PDF Generation](scripts/README.md)
