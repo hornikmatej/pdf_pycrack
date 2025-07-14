@@ -7,7 +7,7 @@ from typing import Optional
 import pikepdf
 from tqdm import tqdm
 
-from .formatting.errors import print_error
+from .formatting.errors import format_error_context, print_error
 from .models.cracking_result import (
     CrackingInterrupted,
     CrackResult,
@@ -16,6 +16,7 @@ from .models.cracking_result import (
     NotEncrypted,
     PasswordFound,
     PasswordNotFound,
+    PDFCorruptedError,
 )
 from .password_generator import generate_passwords
 
@@ -50,20 +51,73 @@ def crack_pdf_password(
         return InitializationError(
             error_message="Charset cannot be empty.",
             elapsed_time=time.time() - start_time,
+            error_type="EmptyCharset",
+            suggested_actions=[
+                "Provide a non-empty charset for password generation",
+                "Check the charset parameter and ensure it contains at least one character",
+            ],
         )
 
     try:
         if not _initialize_cracking(pdf_path):
             return NotEncrypted(elapsed_time=time.time() - start_time)
     except FileNotFoundError as e:
-        print_error("File Not Found", str(e))
+        error_context = format_error_context("FileNotFoundError", pdf_path, e)
+        print_error(**error_context)
         return FileReadError(
-            error_message=str(e), elapsed_time=time.time() - start_time
+            error_message=str(e),
+            file_path=pdf_path,
+            error_type="FileNotFoundError",
+            suggested_actions=error_context.get("suggested_actions", []),
+            elapsed_time=time.time() - start_time,
+        )
+    except PermissionError as e:
+        error_context = format_error_context("PermissionError", pdf_path, e)
+        print_error(**error_context)
+        return FileReadError(
+            error_message=str(e),
+            file_path=pdf_path,
+            error_type="PermissionError",
+            suggested_actions=error_context.get("suggested_actions", []),
+            elapsed_time=time.time() - start_time,
+        )
+    except IsADirectoryError as e:
+        error_context = format_error_context("IsADirectoryError", pdf_path, e)
+        print_error(**error_context)
+        return FileReadError(
+            error_message=str(e),
+            file_path=pdf_path,
+            error_type="IsADirectoryError",
+            suggested_actions=error_context.get("suggested_actions", []),
+            elapsed_time=time.time() - start_time,
+        )
+    except pikepdf.PdfError as e:
+        error_context = format_error_context("pikepdf.PdfError", pdf_path, e)
+        print_error(**error_context)
+        return PDFCorruptedError(
+            error_message=str(e),
+            file_path=pdf_path,
+            corruption_type="pdf_error",
+            suggested_actions=error_context.get("suggested_actions", []),
+            elapsed_time=time.time() - start_time,
+        )
+    except MemoryError as e:
+        error_context = format_error_context("MemoryError", pdf_path, e)
+        print_error(**error_context)
+        return InitializationError(
+            error_message=str(e),
+            error_type="MemoryError",
+            suggested_actions=error_context.get("suggested_actions", []),
+            elapsed_time=time.time() - start_time,
         )
     except Exception as e:
-        print_error("Initialization Error", str(e))
+        error_context = format_error_context("Exception", pdf_path, e)
+        print_error(**error_context)
         return InitializationError(
-            error_message=str(e), elapsed_time=time.time() - start_time
+            error_message=str(e),
+            error_type="Unknown",
+            suggested_actions=error_context.get("suggested_actions", []),
+            elapsed_time=time.time() - start_time,
         )
 
     result = _manage_workers(
@@ -105,8 +159,24 @@ def _initialize_cracking(pdf_path: str) -> bool:
             return False
     except pikepdf.PasswordError:
         return True  # PDF is encrypted
+    except pikepdf.PdfError as e:
+        # Handle PDF corruption or format issues
+        raise pikepdf.PdfError(f"PDF file appears to be corrupted: {e}")
     except FileNotFoundError:
         raise  # Re-raise to be caught by the caller
+    except PermissionError:
+        raise  # Re-raise to be caught by the caller
+    except IsADirectoryError:
+        raise  # Re-raise to be caught by the caller
+    except OSError:
+        # Handle other OS errors
+        raise
+    except RuntimeError as e:
+        # Handle runtime errors that might contain directory errors
+        if "Is a directory" in str(e):
+            raise IsADirectoryError(str(e))
+        else:
+            raise
     except Exception as e:
         raise RuntimeError(
             f"Error during initial check with pikepdf on '{pdf_path}': {e}"
@@ -179,9 +249,24 @@ def _manage_workers(
         with open(pdf_path, "rb") as f:
             pdf_data = f.read()
     except IOError as e:
-        print_error("File Read Error", f"Error reading PDF file: {e}")
+        error_context = format_error_context(type(e).__name__, pdf_path, e)
+        print_error(**error_context)
         return FileReadError(
-            error_message=str(e), elapsed_time=time.time() - start_time
+            error_message=str(e),
+            file_path=pdf_path,
+            error_type=type(e).__name__,
+            suggested_actions=error_context.get("suggested_actions", []),
+            elapsed_time=time.time() - start_time,
+        )
+    except MemoryError as e:
+        error_context = format_error_context("MemoryError", pdf_path, e)
+        print_error(**error_context)
+        return FileReadError(
+            error_message=str(e),
+            file_path=pdf_path,
+            error_type="MemoryError",
+            suggested_actions=error_context.get("suggested_actions", []),
+            elapsed_time=time.time() - start_time,
         )
 
     manager = multiprocessing.Manager()
@@ -354,9 +439,22 @@ def worker(
                         break  # Exit after finding the password
                 except pikepdf.PasswordError:
                     continue
+                except pikepdf.PdfError as e:
+                    # Handle PDF corruption issues in workers
+                    if report_worker_errors:
+                        print_error(
+                            "PDF Processing Error",
+                            f"Error processing PDF with password '{password}': {e}",
+                            details="This might indicate PDF corruption or format issues",
+                        )
+                    continue
                 except Exception as e:
                     if report_worker_errors:
-                        print(f"Worker error during PDF processing: {e}")
+                        print_error(
+                            "Worker Error",
+                            f"Unexpected error during PDF processing: {e}",
+                            details="Consider reporting this issue with the PDF file details",
+                        )
 
             progress_queue.put(len(passwords))
             passwords = []
