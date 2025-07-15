@@ -1,3 +1,9 @@
+"""PDF validation utilities for determining encryption status.
+
+This module provides functions to validate PDF files and check
+whether they are encrypted and require password cracking.
+"""
+
 import pikepdf
 
 

@@ -1,3 +1,10 @@
+"""Console output formatting for PDF password cracking results.
+
+This module provides functions for displaying start information,
+end results, and progress updates in a formatted and visually
+appealing manner using the Rich library.
+"""
+
 import time
 
 from rich.console import Console
@@ -24,7 +31,17 @@ def print_start_info(
     cores: int,
     start_time: float,
 ) -> None:
-    """Prints the starting information in a formatted panel."""
+    """Print the starting information in a formatted panel.
+
+    Args:
+        pdf_file: Path to the PDF file being processed.
+        min_length: Minimum password length to try.
+        max_length: Maximum password length to try.
+        charset: Character set used for password generation.
+        batch_size: Number of passwords processed per batch.
+        cores: Number of CPU cores being used.
+        start_time: Unix timestamp when the process started.
+    """
 
     grid = Table.grid(expand=True)
     grid.add_column(justify="left", style="bold")
@@ -47,7 +64,11 @@ def print_start_info(
 
 
 def print_end_info(result: CrackResult) -> None:
-    """Prints the final result and duration in a formatted panel."""
+    """Print the final result and duration in a formatted panel.
+
+    Args:
+        result: The cracking result containing status, timing, and other details.
+    """
 
     duration = result.elapsed_time
 

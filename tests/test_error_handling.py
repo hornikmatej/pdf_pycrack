@@ -1,3 +1,10 @@
+"""Comprehensive error handling tests for PDF password cracking.
+
+This module contains tests that verify proper error handling for various
+failure scenarios including file system errors, PDF corruption, and
+invalid parameters.
+"""
+
 import os
 import tempfile
 from unittest.mock import patch

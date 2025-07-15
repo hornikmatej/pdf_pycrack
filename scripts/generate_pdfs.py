@@ -1,9 +1,22 @@
+"""PDF generation utility for creating test files with various password types.
+
+This script generates password-protected PDF files for testing the
+PDF password cracking functionality across different character sets
+and password complexities.
+"""
+
 import os
 
 import pikepdf
 
 
-def create_password_protected_pdf(output_path, password):
+def create_password_protected_pdf(output_path: str, password: str) -> None:
+    """Create a password-protected PDF file with the specified password.
+
+    Args:
+        output_path: Path where the PDF file will be saved.
+        password: Password to protect the PDF with.
+    """
     pdf = pikepdf.new()
     # Add a blank page to the PDF
     pdf.add_blank_page()
@@ -15,7 +28,18 @@ def create_password_protected_pdf(output_path, password):
     print(f"Created: {output_path} with password '{password}'")
 
 
-def generate_test_pdfs(base_dir="tests/test_pdfs"):
+def generate_test_pdfs(base_dir: str = "tests/test_pdfs") -> None:
+    """Generate a comprehensive set of test PDF files with various password types.
+
+    Creates PDF files with passwords using:
+    - Numbers only (100-104)
+    - Letters only (ab, df, gi, jk, mn)
+    - Special characters (!@#, $%^, &*()
+    - Mixed character types (a1, 4!, E$)
+
+    Args:
+        base_dir: Base directory where test PDF folders will be created.
+    """
     # Ensure base directories exist
     os.makedirs(os.path.join(base_dir, "numbers"), exist_ok=True)
     os.makedirs(os.path.join(base_dir, "letters"), exist_ok=True)

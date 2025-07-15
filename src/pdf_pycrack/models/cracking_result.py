@@ -1,17 +1,35 @@
+"""Data models and result types for PDF password cracking operations.
+
+This module defines dataclasses that represent different outcomes
+of the PDF password cracking process, including success, failure,
+and error conditions.
+"""
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
 
 @dataclass
 class CrackResult:
-    """Base class for cracking results."""
+    """Base class for all PDF password cracking results.
+
+    Attributes:
+        elapsed_time: Total time taken for the cracking process in seconds.
+    """
 
     elapsed_time: float
 
 
 @dataclass
 class PasswordFound(CrackResult):
-    """Result when the password is found."""
+    """Result when the password is successfully found.
+
+    Attributes:
+        password: The discovered password string.
+        passwords_checked: Number of passwords tested before finding the correct one.
+        passwords_per_second: Rate of password testing achieved.
+        status: Fixed status string indicating successful password discovery.
+    """
 
     password: str
     passwords_checked: int
@@ -21,7 +39,13 @@ class PasswordFound(CrackResult):
 
 @dataclass
 class PasswordNotFound(CrackResult):
-    """Result when the password is not found."""
+    """Result when the password is not found within the given constraints.
+
+    Attributes:
+        passwords_checked: Total number of passwords tested.
+        passwords_per_second: Rate of password testing achieved.
+        status: Fixed status string indicating password was not found.
+    """
 
     passwords_checked: int
     passwords_per_second: float
@@ -30,7 +54,12 @@ class PasswordNotFound(CrackResult):
 
 @dataclass
 class CrackingInterrupted(CrackResult):
-    """Result when the cracking is interrupted."""
+    """Result when the cracking process is interrupted by user input.
+
+    Attributes:
+        passwords_checked: Number of passwords tested before interruption.
+        status: Fixed status string indicating process was interrupted.
+    """
 
     passwords_checked: int
     status: str = field(default="interrupted", init=False)

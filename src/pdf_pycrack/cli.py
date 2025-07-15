@@ -1,9 +1,19 @@
+"""Command-line interface setup and configuration.
+
+This module provides argument parsing and CLI setup for the PDF
+password cracking application.
+"""
+
 import argparse
 import multiprocessing
 
 
 def setup_arg_parser() -> argparse.ArgumentParser:
-    """Sets up and returns the argument parser for the command-line interface."""
+    """Set up and return the argument parser for the command-line interface.
+
+    Returns:
+        Configured ArgumentParser instance with all CLI options.
+    """
     parser = argparse.ArgumentParser(
         description="Crack PDF passwords using brute-force."
     )

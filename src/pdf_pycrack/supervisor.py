@@ -1,3 +1,9 @@
+"""Worker process management and coordination for PDF password cracking.
+
+This module contains the supervisor function that manages multiple worker processes
+and coordinates the password cracking workflow with progress tracking.
+"""
+
 import multiprocessing
 import queue
 import time

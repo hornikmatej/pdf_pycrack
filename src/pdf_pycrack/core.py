@@ -1,3 +1,9 @@
+"""Core PDF password cracking functionality.
+
+This module provides the main crack_pdf_password function that orchestrates
+the PDF password cracking process using multiprocessing.
+"""
+
 import multiprocessing
 import time
 from typing import Optional

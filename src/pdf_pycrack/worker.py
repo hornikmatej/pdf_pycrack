@@ -1,3 +1,9 @@
+"""Worker process implementation for PDF password cracking.
+
+This module contains the worker process function that attempts to crack
+PDF passwords by trying different password combinations.
+"""
+
 import queue
 from io import BytesIO
 

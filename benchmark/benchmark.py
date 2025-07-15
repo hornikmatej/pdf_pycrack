@@ -30,14 +30,24 @@ logging.basicConfig(
 class BenchmarkRunner:
     """Handles running and measuring password cracking benchmarks."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize the BenchmarkRunner with output directory setup."""
         # Save results in benchmark/results folder
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.output_dir = os.path.join(project_root, "benchmark", "results")
         os.makedirs(self.output_dir, exist_ok=True)
 
     def calculate_search_space(self, min_len: int, max_len: int, charset: str) -> int:
-        """Calculate total number of passwords to check."""
+        """Calculate total number of passwords to check in the search space.
+
+        Args:
+            min_len: Minimum password length.
+            max_len: Maximum password length.
+            charset: Character set used for password generation.
+
+        Returns:
+            Total number of possible password combinations.
+        """
         return sum(len(charset) ** length for length in range(min_len, max_len + 1))
 
     def run_benchmark(
@@ -142,8 +152,15 @@ class BenchmarkRunner:
 
         return results
 
-    def save_results(self, results: Dict[str, Any], filename: Optional[str] = None):
-        """Save benchmark results to JSON and CSV files."""
+    def save_results(
+        self, results: Dict[str, Any], filename: Optional[str] = None
+    ) -> None:
+        """Save benchmark results to JSON and CSV files.
+
+        Args:
+            results: Dictionary containing benchmark results to save.
+            filename: Optional custom filename (timestamp will be added if not provided).
+        """
         if filename is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"benchmark_{timestamp}"
@@ -166,7 +183,14 @@ class BenchmarkRunner:
         logging.info(f"Results appended to: {csv_path}")
 
     def run_standard_benchmark(self) -> Dict[str, Any]:
-        """Run the standard benchmark configuration."""
+        """Run the standard benchmark configuration.
+
+        Runs a standardized benchmark test using a known PDF file
+        with predefined parameters to measure baseline performance.
+
+        Returns:
+            Dictionary containing benchmark results.
+        """
         # Use a PDF with known encryption but wrong search parameters
         pdf_path = "tests/test_pdfs/numbers/100.pdf"
 

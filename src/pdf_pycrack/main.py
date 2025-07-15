@@ -1,3 +1,9 @@
+"""Main entry point for the PDF password cracking application.
+
+This module provides the main function that handles command-line arguments,
+executes the password cracking process, and displays results.
+"""
+
 import time
 
 from .cli import setup_arg_parser
@@ -7,6 +13,15 @@ from .models.cracking_result import CrackingInterrupted, CrackResult, PasswordNo
 
 
 def main() -> None:
+    """Main entry point for the PDF password cracking application.
+
+    Parses command-line arguments, sets up the character set for password
+    generation, and initiates the PDF password cracking process. Handles
+    user interruptions and displays appropriate results.
+
+    Raises:
+        SystemExit: When invalid password length parameters are provided.
+    """
     parser = setup_arg_parser()
     args = parser.parse_args()
 

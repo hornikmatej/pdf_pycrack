@@ -1,3 +1,10 @@
+"""Error message formatting and display utilities.
+
+This module provides functions for displaying error messages, warnings,
+and informational messages in a consistent and user-friendly format
+using the Rich library.
+"""
+
 from typing import Any, Dict, List, Optional
 
 from rich.console import Console
@@ -12,7 +19,14 @@ def print_error(
     details: Optional[str] = None,
     suggested_actions: Optional[List[str]] = None,
 ) -> None:
-    """Prints an error message in a formatted panel with optional details and suggestions."""
+    """Print an error message in a formatted panel with optional details and suggestions.
+
+    Args:
+        title: The error title/heading.
+        message: The main error message.
+        details: Optional additional details about the error.
+        suggested_actions: Optional list of suggested actions to resolve the error.
+    """
 
     # Create the main error content
     content_parts = [f"[white]{message}[/white]"]
@@ -39,7 +53,13 @@ def print_error(
 def print_warning(
     title: str, message: str, suggested_actions: Optional[List[str]] = None
 ) -> None:
-    """Prints a warning message in a formatted panel."""
+    """Print a warning message in a formatted panel.
+
+    Args:
+        title: The warning title/heading.
+        message: The main warning message.
+        suggested_actions: Optional list of suggested actions to address the warning.
+    """
 
     content_parts = [f"[white]{message}[/white]"]
 
@@ -60,7 +80,12 @@ def print_warning(
 
 
 def print_info(title: str, message: str) -> None:
-    """Prints an info message in a formatted panel."""
+    """Print an info message in a formatted panel.
+
+    Args:
+        title: The info title/heading.
+        message: The main info message.
+    """
 
     panel = Panel(
         f"[white]{message}[/white]",
@@ -74,7 +99,16 @@ def print_info(title: str, message: str) -> None:
 def format_error_context(
     error_type: str, file_path: str, exception: Exception
 ) -> Dict[str, Any]:
-    """Formats error context for different types of PDF errors."""
+    """Format error context for different types of PDF errors.
+
+    Args:
+        error_type: The type of error encountered.
+        file_path: Path to the file that caused the error.
+        exception: The exception that was raised.
+
+    Returns:
+        Dict containing formatted error context with title, message, and suggested actions.
+    """
 
     error_mapping = {
         "FileNotFoundError": {
