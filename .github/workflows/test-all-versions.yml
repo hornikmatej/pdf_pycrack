@@ -1,4 +1,4 @@
-name: Lint
+name: Test All Versions
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.12", "3.13"]
 
     steps:
     - uses: actions/checkout@v3
@@ -23,8 +23,5 @@ jobs:
       uses: astral-sh/setup-uv@v1
     - name: Install dependencies
       run: uv sync --all-extras
-    - name: Run linters
-      run: |
-        black --check .
-        ruff check .
-        isort --check-only .
+    - name: Test with pytest
+      run: uv run pytest
