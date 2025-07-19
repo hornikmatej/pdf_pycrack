@@ -8,6 +8,29 @@ import argparse
 import multiprocessing
 
 
+def validate_cores(value: str) -> int:
+    """Validate the number of cores argument.
+
+    Args:
+        value: String value from command line argument.
+
+    Returns:
+        Validated integer number of cores.
+
+    Raises:
+        argparse.ArgumentTypeError: If the value is invalid.
+    """
+    try:
+        cores = int(value)
+        if cores <= 0:
+            raise argparse.ArgumentTypeError("Number of cores must be positive.")
+
+        # We'll handle the max cores warning in main(), just validate it's positive here
+        return cores
+    except ValueError:
+        raise argparse.ArgumentTypeError("Number of cores must be an integer.")
+
+
 def setup_arg_parser() -> argparse.ArgumentParser:
     """Set up and return the argument parser for the command-line interface.
 
@@ -21,9 +44,10 @@ def setup_arg_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--cores",
-        type=int,
+        type=validate_cores,
         default=multiprocessing.cpu_count(),
-        help=f"Number of CPU cores to use. Default: all available ({multiprocessing.cpu_count()})",
+        help=f"Number of CPU cores to use. Default: all available ({multiprocessing.cpu_count()}). "
+        f"Maximum: {multiprocessing.cpu_count()}",
     )
     parser.add_argument(
         "--min_len",
@@ -48,12 +72,6 @@ def setup_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Enable detailed error reporting from worker processes.",
     )
-    parser.add_argument(
-        "--benchmark",
-        action="store_true",
-        help="Enable benchmark mode.",
-    )
-
     # Character set arguments
     parser.add_argument(
         "--charset-numbers",

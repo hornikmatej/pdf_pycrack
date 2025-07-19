@@ -182,34 +182,6 @@ class BenchmarkRunner:
             writer.writerow(results)
         logging.info(f"Results appended to: {csv_path}")
 
-    def run_standard_benchmark(self) -> Dict[str, Any]:
-        """Run the standard benchmark configuration.
-
-        Runs a standardized benchmark test using a known PDF file
-        with predefined parameters to measure baseline performance.
-
-        Returns:
-            Dictionary containing benchmark results.
-        """
-        # Use a PDF with known encryption but wrong search parameters
-        pdf_path = "tests/test_pdfs/numbers/100.pdf"
-
-        # Configure for ~15-30 second runtime at 4k/s
-        # Numbers 4-5: 9 + 90 + 900 + 9000 + 90000 = 99,999 passwords
-        min_len = 4
-        max_len = 5
-        charset = "0123456789"
-
-        results = self.run_benchmark(
-            pdf_path=pdf_path,
-            min_len=min_len,
-            max_len=max_len,
-            charset=charset,
-            description="Standard benchmark - numbers 4-5 length",
-        )
-
-        return results
-
 
 def main():
     """Main entry point for the benchmark tool."""
@@ -247,7 +219,14 @@ def main():
     runner = BenchmarkRunner()
 
     if args.standard:
-        results = runner.run_standard_benchmark()
+        results = runner.run_benchmark(
+            pdf_path="tests/test_pdfs/numbers/100.pdf",
+            min_len=4,
+            max_len=5,
+            charset="0123456789",
+            num_processes=args.processes,
+            description="Standard benchmark - numbers 4-5 length",
+        )
     else:
         results = runner.run_benchmark(
             pdf_path=args.pdf,
