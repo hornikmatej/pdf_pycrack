@@ -1,4 +1,4 @@
-site_name: PDF-PyCrack Documentation
+hsite_name: PDF-PyCrack Documentation
 site_description: A fast, parallel PDF password cracker for Python 3.12+
 site_author: Matej Hornik
 site_url: https://hornikmatej.github.io/pdf_pycrack
