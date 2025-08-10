@@ -173,9 +173,10 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# macOS specific files
 .DS_Store
 
-# AI/IDE helper files
+# AI/IDE helper files and directories
 GEMINI.md
 QWEN.md
 TODO.md
