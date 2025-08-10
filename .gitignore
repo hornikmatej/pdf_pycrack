@@ -175,9 +175,11 @@ cython_debug/
 
 .DS_Store
 
+# AI/IDE helper files
 GEMINI.md
-TODO.md
 QWEN.md
+TODO.md
+*.md  # AI documentation files
 
 .github/*-instructions.md
 .gemini/*
