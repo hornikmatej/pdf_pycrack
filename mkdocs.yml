@@ -7,6 +7,12 @@ repo_name: hornikmatej/pdf_pycrack
 repo_url: https://github.com/hornikmatej/pdf_pycrack
 edit_uri: edit/main/docs/
 
+docs_dir: docs
+site_dir: site
+
+watch:
+  - src/pdf_pycrack
+
 theme:
   name: material
   palette:
