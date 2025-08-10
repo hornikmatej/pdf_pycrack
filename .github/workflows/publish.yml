@@ -9,7 +9,7 @@ on:
 
 # Set permissions for trusted publishing (recommended over API tokens)
 permissions:
-  contents: read
+  contents: write  # For creating GitHub releases
   id-token: write  # For trusted publishing to PyPI
 
 jobs:
@@ -88,3 +88,112 @@ jobs:
         # Configure this in your PyPI project settings
         attestations: true
         verbose: true
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: PDF-PyCrack ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        generate_release_notes: false
+        body: |
+          # PDF-PyCrack ${{ github.ref_name }} - Initial Release 🚀
+
+          We're excited to announce the first official release of **PDF-PyCrack**, a high-performance PDF password cracking tool written in Python 3.12+!
+
+          ## 🌟 Key Features
+
+          ### Multi-Core Performance
+          - **Parallel Processing**: Utilizes all available CPU cores for maximum cracking speed
+          - **Efficient Worker Management**: Resilient worker processes that handle errors gracefully while the main process continues
+          - **Optimized Batch Processing**: Configurable batch sizes for optimal performance
+
+          ### Memory & Performance Optimizations
+          - **Efficient Memory Usage**: Handles large PDF files with minimal RAM consumption
+          - **Real-time Progress Tracking**: Live progress bars and detailed statistics
+          - **Customizable Parameters**: Fine-tune password length, character sets, batch sizes, and more
+
+          ### Comprehensive Error Handling
+          - **Robust Error Management**: Clear, actionable error messages for all edge cases
+          - **Extensive Test Coverage**: Comprehensive test suite covering error scenarios
+          - **Graceful Failure Handling**: Worker process failures don't crash the main application
+
+          ### Easy Installation & Usage
+          - **PyPI Package**: Available as `pdf-pycrack` on PyPI for easy installation
+          - **Command Line Interface**: Simple CLI with comprehensive help and options
+          - **Python Library**: Can be used programmatically in Python applications
+
+          ## 📦 Installation
+
+          Install from PyPI:
+          ```bash
+          uv pip install pdf-pycrack
+          ```
+
+          Or with pip:
+          ```bash
+          pip install pdf-pycrack
+          ```
+
+          ## 🚀 Quick Start
+
+          **Command line:**
+          ```bash
+          pdf-pycrack your_encrypted_file.pdf
+          ```
+
+          **As a Python library:**
+          ```python
+          from pdf_pycrack import crack_pdf_password, PasswordFound
+
+          result = crack_pdf_password("encrypted.pdf", min_len=4, max_len=6)
+          if isinstance(result, PasswordFound):
+              print(f"Password found: {result.password}")
+          ```
+
+          ## 🛠️ Technical Highlights
+
+          - **Python 3.12+ Support**: Built for modern Python with type hints and latest features
+          - **Multiprocessing Architecture**: Scales efficiently across multiple CPU cores
+          - **pikepdf Integration**: Reliable PDF handling with comprehensive format support
+          - **Rich Terminal Output**: Beautiful progress bars and formatted output using rich and tqdm
+          - **Comprehensive Testing**: Extensive test suite with multiple password types and edge cases
+
+          ## 📊 Performance & Benchmarking
+
+          - Includes advanced benchmarking tools for performance measurement
+          - Supports custom character sets, password lengths, and batch sizes
+          - Optimized for both speed and memory efficiency
+
+          ## 🔧 Development Features
+
+          - **Modern Build System**: Uses `uv` for fast dependency management
+          - **Code Quality**: Pre-commit hooks, black formatting, and comprehensive linting
+          - **CI/CD Pipeline**: Automated testing across Python 3.12 and 3.13
+          - **Documentation**: Complete API documentation and usage examples
+
+          ## 🎯 Use Cases
+
+          Perfect for:
+          - Security professionals testing PDF password strength
+          - Digital forensics and recovery scenarios
+          - Educational purposes and security research
+          - Automation workflows requiring PDF password recovery
+
+          ## 📈 What's Next
+
+          This initial release establishes a solid foundation with core functionality. Future releases will focus on:
+          - Performance optimizations and algorithm improvements
+          - Additional password generation strategies
+          - Enhanced reporting and analytics
+          - Extended file format support
+
+          ## 🙏 Acknowledgments
+
+          Thank you to the open source community and the maintainers of pikepdf, tqdm, and rich for providing the excellent libraries that make this project possible.
+
+          ---
+
+          **Full Changelog**: https://github.com/hornikmatej/pdf_pycrack/commits/${{ github.ref_name }}
+          **Documentation**: https://github.com/hornikmatej/pdf_pycrack#readme
+          **Issues & Support**: https://github.com/hornikmatej/pdf_pycrack/issues
