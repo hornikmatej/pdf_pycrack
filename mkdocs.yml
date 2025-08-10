@@ -1,0 +1,106 @@
+site_name: PDF-PyCrack Documentation
+site_description: A fast, parallel PDF password cracker for Python 3.12+
+site_author: Matej Hornik
+site_url: https://hornikmatej.github.io/pdf_pycrack
+
+repo_name: hornikmatej/pdf_pycrack
+repo_url: https://github.com/hornikmatej/pdf_pycrack
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    - content.code.copy
+    - content.code.select
+    - content.action.edit
+    - content.action.view
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_source: true
+            show_root_heading: true
+            show_root_toc_entry: false
+            merge_init_into_class: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Basic Usage: getting-started/basic-usage.md
+  - User Guide:
+    - Command Line Interface: user-guide/cli.md
+    - Python Library: user-guide/library.md
+    - Configuration: user-guide/configuration.md
+    - Error Handling: user-guide/error-handling.md
+  - Performance:
+    - Benchmarking: performance/benchmarking.md
+    - Optimization Tips: performance/optimization.md
+  - API Reference:
+    - Core Functions: api/core.md
+    - Models & Types: api/models.md
+    - CLI Interface: api/cli.md
+  - Development:
+    - Contributing: development/contributing.md
+    - Testing: development/testing.md
+    - Release Notes: development/releases.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/hornikmatej/pdf_pycrack
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pdf-pycrack/
+
+copyright: Copyright &copy; 2025 Matej Hornik
