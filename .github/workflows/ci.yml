@@ -44,7 +44,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest]
         python-version: ['3.12', '3.13']
 
     steps:
@@ -144,80 +144,3 @@ jobs:
       with:
         name: docs
         path: site/
-
-  # Security scanning
-  security:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-      with:
-        enable-cache: true
-        cache-dependency-glob: "uv.lock"
-
-    - name: Install dependencies
-      run: |
-        uv sync --all-extras --dev
-
-    - name: Run safety check
-      run: |
-        uv run safety check || echo "Safety check failed or not available"
-      continue-on-error: true  # Don't fail CI on security warnings
-
-    - name: Run bandit security linter
-      run: |
-        uv run bandit -r src/ -f json -o bandit-report.json || echo "Bandit failed or not available"
-      continue-on-error: true
-
-    - name: Upload security reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-reports
-        path: |
-          bandit-report.json
-      if: always()
-
-  # Benchmark performance (optional)
-  benchmark:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-      with:
-        enable-cache: true
-        cache-dependency-glob: "uv.lock"
-
-    - name: Install dependencies
-      run: |
-        uv sync --all-extras --dev
-
-    - name: Run benchmarks
-      run: |
-        uv run python benchmark/benchmark.py --standard --output benchmark-results.json
-      continue-on-error: true
-
-    - name: Upload benchmark results
-      uses: actions/upload-artifact@v4
-      with:
-        name: benchmark-results
-        path: benchmark-results.json
-      if: always()

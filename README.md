@@ -6,7 +6,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
-[![codecov](https://codecov.io/gh/your-github-username/pdf-pycrack/graph/badge.svg?token=YOUR_TOKEN)](https://codecov.io/gh/your-github-username/pdf-pycrack)
+[![codecov](https://codecov.io/gh/hornikmatej/pdf_pycrack/graph/badge.svg?token=YOUR_TOKEN)](https://codecov.io/gh/hornikmatej/pdf_pycrack)
 
 **A not yet blazing fast, parallel PDF password cracker for Python 3.12+.**
 

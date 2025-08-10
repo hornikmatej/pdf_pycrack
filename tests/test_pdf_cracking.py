@@ -34,7 +34,18 @@ def get_password_from_filename(pdf_path: str) -> str:
     Returns:
         The password extracted from the filename.
     """
-    return os.path.splitext(os.path.basename(pdf_path))[0]
+    filename = os.path.splitext(os.path.basename(pdf_path))[0]
+
+    # Special mapping for special character test files where filename
+    # is descriptive rather than the actual password
+    special_char_mapping = {
+        "dollar_percent_caret": "$%^",
+        "exclamation_at_hash": "!@#",
+        "ampersand_asterisk_paren": "&*(",
+        "exclamation_space": "! ",
+    }
+
+    return special_char_mapping.get(filename, filename)
 
 
 @pytest.mark.numbers
