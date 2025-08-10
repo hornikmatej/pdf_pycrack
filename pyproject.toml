@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A fast, parallel PDF password cracker written in Python."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { file = "LICENSE" }
+license = "MIT"
 authors = [
     { name = "Matej Hornik", email = "bachini256@gmail.com" }
 ]
@@ -13,9 +13,8 @@ maintainers = [
 ]
 keywords = ["pdf", "password", "cracker", "security", "parallel"]
 classifiers = [
-    "Development Status :: 1 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
@@ -34,8 +33,13 @@ dependencies = [
 "Bug Tracker" = "https://github.com/hornikmatej/pdf_pycrack/issues"
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pdf_pycrack*"]
+exclude = ["pdf_pycrack.*.__pycache__*"]
 
 [project.scripts]
 pdf-pycrack = "pdf_pycrack.main:main"
