@@ -177,3 +177,8 @@ cython_debug/
 
 GEMINI.md
 TODO.md
+QWEN.md
+
+.github/*-instructions.md
+.gemini/*
+.clinerules/*
