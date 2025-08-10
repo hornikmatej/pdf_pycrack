@@ -55,18 +55,16 @@ jobs:
 
     - name: Install dependencies
       run: |
-        uv sync --all-extras --dev
+        uv sync --extra docs
 
     - name: Set up Pages
       id: pages
       uses: actions/configure-pages@v4
+      continue-on-error: true  # Don't fail if Pages isn't enabled
 
     - name: Build documentation
       run: |
         uv run mkdocs build --clean --strict
-      env:
-        # Override site_url for proper GitHub Pages deployment
-        MKDOCS_SITE_URL: ${{ steps.pages.outputs.base_url }}/pdf_pycrack/
 
     - name: Upload documentation artifact
       uses: actions/upload-pages-artifact@v3
@@ -87,6 +85,7 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+      continue-on-error: true  # Don't fail if Pages deployment fails
 
   # Test documentation build on PRs (no deployment)
   test:
