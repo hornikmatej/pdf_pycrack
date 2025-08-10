@@ -86,16 +86,3 @@ jobs:
       id: deployment
       uses: actions/deploy-pages@v4
       continue-on-error: true  # Don't fail if Pages deployment fails
-
-  # Test documentation build on PRs (no deployment)
-  test:
-    if: github.event_name == 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Documentation build test completed
-      run: |
-        echo "✅ Documentation builds successfully!"
-        echo "📚 Preview will be available after merge to main branch."
-        echo "🔗 Documentation will be deployed to: https://${{ github.repository_owner }}.github.io/pdf_pycrack/"

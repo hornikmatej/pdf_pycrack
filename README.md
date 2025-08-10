@@ -6,7 +6,6 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
-[![codecov](https://codecov.io/gh/hornikmatej/pdf_pycrack/graph/badge.svg?token=YOUR_TOKEN)](https://codecov.io/gh/hornikmatej/pdf_pycrack)
 
 **A not yet blazing fast, parallel PDF password cracker for Python 3.12+.**
 
@@ -78,6 +77,24 @@ uv run pdf-pycrack tests/test_pdfs/numbers/100.pdf
 uv run pdf-pycrack tests/test_pdfs/letters/ab.pdf --min-len 2 --max-len 2 --charset abcdef
 ```
 
+### Using as a Python Library
+
+You can also use pdf-pycrack programmatically in your Python code:
+
+```python
+from pdf_pycrack import crack_pdf_password, PasswordFound
+
+result = crack_pdf_password(
+    pdf_path="my_encrypted_file.pdf",
+    min_len=4,
+    max_len=6,
+    charset="0123456789"
+)
+
+if isinstance(result, PasswordFound):
+    print(f"Password found: {result.password}")
+```
+
 
 ## Benchmarking
 
@@ -104,14 +121,6 @@ Run all tests:
 ```bash
 uv run pytest
 ```
-
-Run tests with coverage report:
-
-```bash
-uv run pytest --cov=src --cov-report=term-missing
-```
-
-Tests are automatically run on every push and pull request via GitHub Actions. Coverage is reported to [Codecov](https://codecov.io).
 
 Tests are marked by category:
 
