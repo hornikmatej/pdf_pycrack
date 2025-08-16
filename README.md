@@ -104,6 +104,16 @@ Measure and compare password cracking speed with the advanced benchmarking tool:
 uv run python benchmark/benchmark.py --standard
 ```
 
+**Performance regression testing:**
+
+```bash
+# Check latest benchmark for performance regression
+uv run python benchmark/regression_detector.py
+
+# Check with custom threshold and fail on regression
+uv run python benchmark/regression_detector.py --threshold 10.0 --fail-on-regression
+```
+
 **Custom runs:**
 
 ```bash
@@ -111,7 +121,7 @@ uv run python benchmark/benchmark.py --pdf tests/test_pdfs/letters/ab.pdf --min-
 uv run python benchmark/benchmark.py --processes 4 --batch-size 1000
 ```
 
-Results are saved in `benchmark/results/` as JSON and CSV. See [`benchmark/README.md`](benchmark/README.md) for full details, options, and integration tips.
+Results are saved in `benchmark/results/` as JSON and CSV. The system automatically detects performance regressions by comparing against recent baselines. See [`benchmark/README.md`](benchmark/README.md) for full details, options, and integration tips.
 
 
 ## Testing & Error Handling

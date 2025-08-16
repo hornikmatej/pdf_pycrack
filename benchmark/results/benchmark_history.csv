@@ -6,3 +6,4 @@ timestamp,pdf_path,min_len,max_len,charset,charset_length,search_space,num_proce
 2025-07-14T23:31:59.801161,tests/test_pdfs/numbers/100.pdf,4,5,0123456789,10,110000,14,100,19.24546194076538,0.17162900000000003,110000,5715.63313671365,Standard benchmark - numbers 4-5 length,PasswordNotFound
 2025-07-14T23:59:03.634955,tests/test_pdfs/numbers/100.pdf,4,5,0123456789,10,110000,14,100,19.48417091369629,0.168277,110000,5645.608452483658,Standard benchmark - numbers 4-5 length,PasswordNotFound
 2025-07-19T20:47:15.266668,tests/test_pdfs/numbers/100.pdf,4,5,0123456789,10,110000,2,100,6.395685911178589,0.024426000000000003,8000,1250.8431638297525,Standard benchmark - numbers 4-5 length,CrackingInterrupted
+2025-08-16T11:31:36.748259,tests/test_pdfs/numbers/100.pdf,4,5,0123456789,10,110000,14,100,19.70282816886902,0.18495999999999999,110000,5582.954845731379,Standard benchmark - numbers 4-5 length,PasswordNotFound
