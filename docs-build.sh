@@ -35,7 +35,7 @@ ACTION=${1:-serve}
 case $ACTION in
     "serve"|"dev")
         print_status "Starting documentation development server..."
-        print_status "Documentation will be available at: http://127.0.0.1:8000/pdf_pycrack/"
+        print_status "Documentation will be available at: http://127.0.0.1:8000/"
         print_status "Press Ctrl+C to stop the server"
         echo
         uv run mkdocs serve
@@ -61,7 +61,7 @@ case $ACTION in
 
     "install")
         print_status "Installing documentation dependencies..."
-        uv sync
+        uv sync --extra docs
         print_status "Dependencies installed successfully!"
         ;;
 

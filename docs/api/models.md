@@ -7,11 +7,6 @@ This page documents the data structures and result types used throughout PDF-PyC
 All cracking operations return one of these result types:
 
 ::: pdf_pycrack.models.cracking_result
-    options:
-      show_source: true
-      show_root_heading: true
-      show_root_toc_entry: false
-      heading_level: 3
 
 ## Success Results
 

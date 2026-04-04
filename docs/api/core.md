@@ -5,49 +5,24 @@ This page documents the main functions and classes in the PDF-PyCrack core modul
 ## Main Function
 
 ::: pdf_pycrack.core.crack_pdf_password
-    options:
-      show_source: true
-      show_root_heading: true
-      show_root_toc_entry: false
-      heading_level: 3
 
 ## Core Modules
 
 ### PDF Validation
 
 ::: pdf_pycrack.validator
-    options:
-      show_source: true
-      show_root_heading: true
-      show_root_toc_entry: false
-      heading_level: 4
 
 ### Worker Management
 
 ::: pdf_pycrack.supervisor
-    options:
-      show_source: true
-      show_root_heading: true
-      show_root_toc_entry: false
-      heading_level: 4
 
 ### Password Generation
 
 ::: pdf_pycrack.password_generator
-    options:
-      show_source: true
-      show_root_heading: true
-      show_root_toc_entry: false
-      heading_level: 4
 
 ### Worker Processes
 
 ::: pdf_pycrack.worker
-    options:
-      show_source: true
-      show_root_heading: true
-      show_root_toc_entry: false
-      heading_level: 4
 
 ## Usage Examples
 

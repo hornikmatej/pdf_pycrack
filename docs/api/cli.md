@@ -11,20 +11,10 @@ pdf-pycrack <pdf_file> [options]
 ## CLI Module
 
 ::: pdf_pycrack.cli
-    options:
-      show_source: true
-      show_root_heading: true
-      show_root_toc_entry: false
-      heading_level: 3
 
 ## Main Entry Point
 
 ::: pdf_pycrack.main
-    options:
-      show_source: true
-      show_root_heading: true
-      show_root_toc_entry: false
-      heading_level: 3
 
 ## Arguments Reference
 
