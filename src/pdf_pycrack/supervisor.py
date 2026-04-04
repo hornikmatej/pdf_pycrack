@@ -5,6 +5,7 @@ and coordinates the password cracking workflow with progress tracking.
 """
 
 import multiprocessing
+import os
 import queue
 import time
 
@@ -65,12 +66,19 @@ def manage_workers(
             elapsed_time=time.time() - start_time,
         )
 
-    manager = multiprocessing.Manager()
-    found_event = manager.Event()
-    result_queue = manager.Queue()
-    password_queue = manager.Queue(maxsize=num_processes * 2)
-    progress_queue = manager.Queue()
-    stop_generating_event = manager.Event()
+    queue_maxsize = max(num_processes * batch_size * 2, num_processes * 2)
+    try:
+        sem_value_max = os.sysconf("SC_SEM_VALUE_MAX")
+    except (AttributeError, OSError, ValueError):
+        sem_value_max = None
+    if sem_value_max is not None and sem_value_max > 0:
+        queue_maxsize = min(queue_maxsize, sem_value_max)
+
+    found_event = multiprocessing.Event()
+    result_queue = multiprocessing.Queue()
+    password_queue = multiprocessing.Queue(maxsize=queue_maxsize)
+    progress_counts = multiprocessing.Array("Q", num_processes, lock=False)
+    stop_generating_event = multiprocessing.Event()
 
     pbar = tqdm(total=total_passwords_to_check, desc="Cracking PDF", unit="pw")
 
@@ -90,7 +98,7 @@ def manage_workers(
 
     # Create and start worker processes
     processes = []
-    for _ in range(num_processes):
+    for worker_index in range(num_processes):
         p = multiprocessing.Process(
             target=worker_process,
             args=(
@@ -98,9 +106,12 @@ def manage_workers(
                 password_queue,
                 found_event,
                 result_queue,
-                progress_queue,
+                None,
                 report_worker_errors,
                 batch_size,
+                True,
+                worker_index,
+                progress_counts,
             ),
         )
         processes.append(p)
@@ -116,24 +127,19 @@ def manage_workers(
             passwords_processed < total_passwords_to_check and not found_event.is_set()
         ):
             try:
-                progress = progress_queue.get(timeout=0.1)
-                pbar.update(progress)
-                passwords_processed += progress
+                found_password = result_queue.get(timeout=0.1)
+                found_event.set()
+                stop_generating_event.set()
             except queue.Empty:
-                # Check if the generator is done and the queue is empty
-                if (
-                    not generator_process.is_alive()
-                    and password_queue.empty()
-                    and not any(p.is_alive() for p in processes)
+                current_passwords_processed = sum(progress_counts)
+                pbar.update(current_passwords_processed - passwords_processed)
+                passwords_processed = current_passwords_processed
+
+                if not generator_process.is_alive() and not any(
+                    p.is_alive() for p in processes
                 ):
                     break
                 continue
-
-            if not result_queue.empty():
-                found_password = result_queue.get_nowait()
-                if found_password:
-                    found_event.set()
-                    stop_generating_event.set()
 
     except KeyboardInterrupt:
         interrupted = True
@@ -147,14 +153,16 @@ def manage_workers(
     generator_process.join()
 
     # Final progress update
-    while not progress_queue.empty():
-        passwords_processed += progress_queue.get_nowait()
+    passwords_processed = sum(progress_counts)
     pbar.update(total_passwords_to_check - pbar.n)
 
     # Collect the final result if found
     if not found_password:
-        while not result_queue.empty():
-            found_password = result_queue.get_nowait()
+        while True:
+            try:
+                found_password = result_queue.get_nowait()
+            except queue.Empty:
+                break
 
     pbar.close()
 

@@ -9,6 +9,7 @@ by comparing current benchmark results with historical baselines.
 import csv
 import json
 import statistics
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -126,7 +127,7 @@ def main():
         "--threshold",
         type=float,
         default=15.0,
-        help="Regression threshold percentage (default: 15%)",
+        help="Regression threshold percentage (default: %(default)s%%)",
     )
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
     parser.add_argument(
@@ -149,7 +150,10 @@ def main():
                     current_perf = float(
                         last_line.split(",")[12]
                     )  # passwords_per_second column
-                    print(f"Using latest benchmark result: {current_perf:,.0f} pw/s")
+                    print(
+                        f"Using latest benchmark result: {current_perf:,.0f} pw/s",
+                        file=sys.stderr,
+                    )
                 else:
                     print("No benchmark data found. Run a benchmark first.")
                     exit(1)
