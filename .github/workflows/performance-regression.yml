@@ -33,7 +33,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        uv sync --all-extras --dev
+        uv sync --frozen
 
     - name: Run performance benchmark
       run: |

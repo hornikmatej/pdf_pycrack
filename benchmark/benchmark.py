@@ -147,7 +147,7 @@ class BenchmarkRunner:
         logging.info(f"  Elapsed time: {elapsed_time:.2f}s")
         logging.info(f"  CPU time: {cpu_time:.2f}s")
         logging.info(f"  Passwords per second: {passwords_per_second:,.0f}")
-        logging.info(f"  Efficiency: {(passwords_checked/search_space)*100:.1f}%")
+        logging.info(f"  Efficiency: {(passwords_checked / search_space) * 100:.1f}%")
         logging.info("=" * 60)
 
         return results
