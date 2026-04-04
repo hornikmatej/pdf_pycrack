@@ -20,6 +20,9 @@ def worker_process(
     progress_queue,
     report_worker_errors: bool,
     batch_size: int,
+    report_progress: bool = True,
+    worker_index: int | None = None,
+    progress_counts=None,
 ) -> None:
     """
     Worker process for cracking PDF passwords.
@@ -32,8 +35,12 @@ def worker_process(
         progress_queue: Queue to report progress.
         report_worker_errors: Whether to report worker errors.
         batch_size: The number of passwords to process in a batch.
+        report_progress: Whether to report per-batch progress to the queue.
+        worker_index: Shared progress slot index when using shared counters.
+        progress_counts: Optional shared progress counters array.
     """
     passwords = []
+    passwords_processed = 0
     try:
         while not found_event.is_set():
             # Fill the batch
@@ -82,11 +89,17 @@ def worker_process(
                             details="Consider reporting this issue with the PDF file details",
                         )
 
-            progress_queue.put(tried_count)
+            passwords_processed += tried_count
+            if progress_counts is not None and worker_index is not None:
+                progress_counts[worker_index] = passwords_processed
+            elif report_progress:
+                progress_queue.put(tried_count)
             passwords = []
 
     except KeyboardInterrupt:
         pass
     finally:
-        if passwords:
+        if progress_counts is not None and worker_index is not None:
+            progress_counts[worker_index] = passwords_processed
+        elif passwords:
             progress_queue.put(len(passwords))
