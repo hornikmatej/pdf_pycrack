@@ -9,6 +9,7 @@ by comparing current benchmark results with historical baselines.
 import csv
 import json
 import statistics
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -149,7 +150,10 @@ def main():
                     current_perf = float(
                         last_line.split(",")[12]
                     )  # passwords_per_second column
-                    print(f"Using latest benchmark result: {current_perf:,.0f} pw/s")
+                    print(
+                        f"Using latest benchmark result: {current_perf:,.0f} pw/s",
+                        file=sys.stderr,
+                    )
                 else:
                     print("No benchmark data found. Run a benchmark first.")
                     exit(1)
