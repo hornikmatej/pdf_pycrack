@@ -126,7 +126,7 @@ def main():
         "--threshold",
         type=float,
         default=15.0,
-        help="Regression threshold percentage (default: 15%)",
+        help="Regression threshold percentage (default: %(default)s%%)",
     )
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
     parser.add_argument(
