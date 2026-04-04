@@ -180,7 +180,10 @@ cython_debug/
 GEMINI.md
 QWEN.md
 TODO.md
+AGENTS.md
+CLAUDE.md
 *.md  # AI documentation files
+.github/skills/*
 
 .github/*-instructions.md
 .gemini/*
