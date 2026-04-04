@@ -65,12 +65,13 @@ def manage_workers(
             elapsed_time=time.time() - start_time,
         )
 
-    manager = multiprocessing.Manager()
-    found_event = manager.Event()
-    result_queue = manager.Queue()
-    password_queue = manager.Queue(maxsize=num_processes * 2)
-    progress_queue = manager.Queue()
-    stop_generating_event = manager.Event()
+    found_event = multiprocessing.Event()
+    result_queue = multiprocessing.Queue()
+    password_queue = multiprocessing.Queue(
+        maxsize=max(num_processes * batch_size * 2, num_processes * 2)
+    )
+    progress_queue = multiprocessing.Queue()
+    stop_generating_event = multiprocessing.Event()
 
     pbar = tqdm(total=total_passwords_to_check, desc="Cracking PDF", unit="pw")
 
@@ -121,19 +122,20 @@ def manage_workers(
                 passwords_processed += progress
             except queue.Empty:
                 # Check if the generator is done and the queue is empty
-                if (
-                    not generator_process.is_alive()
-                    and password_queue.empty()
-                    and not any(p.is_alive() for p in processes)
+                if not generator_process.is_alive() and not any(
+                    p.is_alive() for p in processes
                 ):
                     break
                 continue
 
-            if not result_queue.empty():
+            try:
                 found_password = result_queue.get_nowait()
-                if found_password:
-                    found_event.set()
-                    stop_generating_event.set()
+            except queue.Empty:
+                pass
+
+            if found_password:
+                found_event.set()
+                stop_generating_event.set()
 
     except KeyboardInterrupt:
         interrupted = True
@@ -153,8 +155,11 @@ def manage_workers(
 
     # Collect the final result if found
     if not found_password:
-        while not result_queue.empty():
-            found_password = result_queue.get_nowait()
+        while True:
+            try:
+                found_password = result_queue.get_nowait()
+            except queue.Empty:
+                break
 
     pbar.close()
 
